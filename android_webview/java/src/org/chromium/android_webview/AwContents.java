@@ -1367,7 +1367,27 @@ public class AwContents {
 
         nativeUpdateLastHitTestData(mNativeAwContents);
         Bundle data = msg.getData();
-        data.putString("url", mPossiblyStaleHitTestData.href);
+
+        // In order to maintain compatibility with the old WebView's implementation,
+        // the absolute (full) url is passed in the |url| field, not only the href attribute.
+        // Note: HitTestData could be cleaned up at this point. See http://crbug.com/290992.
+//TTTim        
+// cannot use only hitTestResultExtraData if it's a href on img, as it'll contain the img src in that case, what we want is the absolute href link
+// => use the page host and port as a workaround for the moment.
+	if(mPossiblyStaleHitTestData.href != null && !mPossiblyStaleHitTestData.href.equals("")) {
+          try{
+            URL pageURL = new URL( mContentViewCore.getUrl());
+            String absoluteURL = pageURL.getProtocol()+"://";
+            absoluteURL +=  pageURL.getHost();
+            if(pageURL.getPort() != -1) absoluteURL +=  ":" +pageURL.getPort();
+            absoluteURL += mPossiblyStaleHitTestData.href;
+            
+            data.putString("url", absoluteURL);
+          } catch (Throwable t) {}
+        }
+        else
+            data.putString("url", mPossiblyStaleHitTestData.hitTestResultExtraData);
+
         data.putString("title", mPossiblyStaleHitTestData.anchorText);
         data.putString("src", mPossiblyStaleHitTestData.imgSrc);
         msg.setData(data);
