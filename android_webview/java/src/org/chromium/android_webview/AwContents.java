@@ -1375,15 +1375,28 @@ public class AwContents {
 // cannot use only hitTestResultExtraData if it's a href on img, as it'll contain the img src in that case, what we want is the absolute href link
 // => use the page host and port as a workaround for the moment.
 	if(mPossiblyStaleHitTestData.href != null && !mPossiblyStaleHitTestData.href.equals("")) {
+          String absoluteURL = "";
+          URL hrefURL = null;
           try{
-            URL pageURL = new URL( mContentViewCore.getUrl());
-            String absoluteURL = pageURL.getProtocol()+"://";
-            absoluteURL +=  pageURL.getHost();
-            if(pageURL.getPort() != -1) absoluteURL +=  ":" +pageURL.getPort();
-            absoluteURL += mPossiblyStaleHitTestData.href;
+            hrefURL = new URL(mPossiblyStaleHitTestData.href);
+          } catch(Throwable t) {}
+
+            // if href is already absolute, use it
+          try{
+            if(hrefURL != null && hrefURL.getProtocol() != null) {
+                absoluteURL = mPossiblyStaleHitTestData.href;
+            }
+            // use current page url to form absolute url
+            else {
+                URL pageURL = new URL( mContentViewCore.getUrl());
+                absoluteURL += pageURL.getProtocol()+"://";
+                absoluteURL +=  pageURL.getHost();
+                if(pageURL.getPort() != -1) absoluteURL +=  ":" +pageURL.getPort();
+                absoluteURL += mPossiblyStaleHitTestData.href;
+            }
             
             data.putString("url", absoluteURL);
-          } catch (Throwable t) {}
+          } catch (Throwable t) { }
         }
         else
             data.putString("url", mPossiblyStaleHitTestData.hitTestResultExtraData);
