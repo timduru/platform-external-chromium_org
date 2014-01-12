@@ -1374,7 +1374,7 @@ public class AwContents {
 //TTTim        
 // cannot use only hitTestResultExtraData if it's a href on img, as it'll contain the img src in that case, what we want is the absolute href link
 // => use the page host and port as a workaround for the moment.
-	if(mPossiblyStaleHitTestData.href != null && !mPossiblyStaleHitTestData.href.equals("")) {
+	if(mPossiblyStaleHitTestData.imgSrc !=null && mPossiblyStaleHitTestData.href != null && !mPossiblyStaleHitTestData.href.equals("")) {
           String absoluteURL = "";
           URL hrefURL = null;
           try{
